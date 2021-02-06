@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFireStore = FirebaseFirestore.getInstance();
     private ProgressBar mRegisterProgressBar;
+    private String downloadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,7 @@ public class RegisterActivity extends AppCompatActivity {
         mImageView = findViewById(R.id.mImageView);
         mRegisterProgressBar = findViewById(R.id.registerProgressBar);
         imageUri=null;
+        downloadUrl=null;
 
 
         mStorage = FirebaseStorage.getInstance().getReference().child("images");
@@ -106,21 +109,25 @@ public class RegisterActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> uploadTask) {
                                             if(uploadTask.isSuccessful()){
-
-                                                //TODO downloadURL no working
-                                                String downloadUrl=null;
-
-                                                Map<String,Object> userMap = new HashMap<>();
-                                                userMap.put("name",name);
-                                                userMap.put("image",downloadUrl);
-
-
-                                                mFireStore.collection("Users").document(userId).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                userProfile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                     @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        sendToMain();
+                                                    public void onSuccess(Uri photoUri) {
+                                                        downloadUrl=photoUri.toString();
+                                                        Map<String,Object> userMap = new HashMap<>();
+                                                        userMap.put("name",name);
+                                                        userMap.put("image",downloadUrl);
+
+
+                                                        mFireStore.collection("Users").document(userId).set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                sendToMain();
+                                                            }
+                                                        });
                                                     }
                                                 });
+
+
 
                                             }else {
                                                 mRegisterProgressBar.setVisibility(View.INVISIBLE);

@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         mMainPager = findViewById(R.id.mainPager);
         mPagerViewAdapter = new PagerViewAdapter(getSupportFragmentManager());
         mMainPager.setAdapter(mPagerViewAdapter);
+        mMainPager.setOffscreenPageLimit(2);
         mMainPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
